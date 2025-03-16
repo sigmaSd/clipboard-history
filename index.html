@@ -298,6 +298,10 @@
         const statusDiv = document.getElementById('status');
         const clearBtn = document.getElementById('clearBtn');
 
+        function runningInWebView() {
+            return typeof window.add !== 'undefined';
+        }
+
         // Function to set status message
         function setStatus(message, isError = false) {
             statusDiv.textContent = message;
@@ -360,6 +364,11 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
+                if (runningInWebView()) {
+                  await window.add(text);
+                }
+
+
                 setStatus(`Added to history: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`);
 
             } catch (error) {
@@ -381,6 +390,10 @@
                     const errorData = await response.json();
                     setStatus(`Error: ${errorData.error || 'Server error'}`, true);
                     throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                if (runningInWebView()) {
+                  await window.clear();
                 }
 
                 // Clear UI
@@ -412,8 +425,13 @@
             try {
                 setStatus('Loading history...');
 
-                const response = await fetch('/getAll?json');
-                const data = await response.json();
+                let data = []
+                if (runningInWebView()) {
+                    data = await window.getAll();
+                } else {
+                    const response = await fetch('/getAll?json');
+                    data = await response.json();
+                }
 
                 if (data.items && Array.isArray(data.items)) {
                     if (data.items.length === 0) {
