@@ -45,6 +45,7 @@ router.post("/add", async (ctx) => {
 // API endpoint to get a history item by index
 router.get("/get", (ctx) => {
   const indexParam = ctx.request.url.searchParams.get("index");
+  const wantJson = ctx.request.url.searchParams.has("json");
   const index = parseInt(indexParam ?? "0", 10);
 
   if (isNaN(index) || index < 0 || index >= clipboardHistory.length) {
@@ -54,11 +55,21 @@ router.get("/get", (ctx) => {
   }
 
   const item = clipboardHistory[clipboardHistory.length - 1 - index];
-  ctx.response.body = { item };
+
+  if (wantJson) {
+    ctx.response.body = { item };
+  } else {
+    ctx.response.body = item;
+  }
 });
 
 router.get("/getAll", (ctx) => {
-  ctx.response.body = { items: clipboardHistory };
+  const wantJson = ctx.request.url.searchParams.has("json");
+  if (wantJson) {
+    ctx.response.body = { items: clipboardHistory };
+  } else {
+    ctx.response.body = clipboardHistory.join("\n\n--\n\n");
+  }
 });
 
 router.get("/", async (ctx) => {
