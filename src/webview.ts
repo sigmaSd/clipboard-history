@@ -1,4 +1,5 @@
-import "jsr:@sigma/deno-compile-extra@0.5.0/localStoragePolyfill";
+import "jsr:@sigma/deno-compile-extra@0.10.0/localStoragePolyfill";
+import "jsr:@sigma/deno-compile-extra@0.10.0/fetchPatch";
 import { SizeHint, Webview } from "jsr:@webview/webview@0.9.0";
 
 const worker = new Worker(import.meta.resolve("./server.ts"), {

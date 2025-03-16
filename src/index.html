@@ -462,6 +462,15 @@
                 let data = []
                 if (runningInWebView()) {
                     data = await window.getAll();
+                    // The server is not aware of the WebView context and the data that is saved there.
+                    // So we sync it with the server here.
+                    await fetch("/addMany", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data.items)
+                    });
                 } else {
                     const response = await fetch('/getAll?json');
                     data = await response.json();

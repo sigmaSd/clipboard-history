@@ -1,7 +1,7 @@
-import { Application, Router, send, Status } from "jsr:@oak/oak@17.1.4";
+import { Application, Router, Status } from "jsr:@oak/oak@17.1.4";
+import "jsr:@sigma/deno-compile-extra@0.10.0/fetchPatch";
 
 if (import.meta.main) {
-  const dirname = import.meta.dirname || ".";
   // @ts-ignore checking for worker
   if (self?.postMessage) {
     injectWorkerCode();
@@ -44,6 +44,33 @@ if (import.meta.main) {
       }
     } catch (error) {
       console.error("Error adding item:", error);
+      ctx.response.status = 500;
+      ctx.response.body = { error: "Internal server error" };
+    }
+  });
+
+  router.post("/addMany", async (ctx) => {
+    try {
+      const data = await ctx.request.body.json();
+      if (data && Array.isArray(data)) {
+        for (const item of data) {
+          clipboardHistory.push(item);
+        }
+        localStorage.setItem(
+          "clipboardHistory",
+          JSON.stringify(clipboardHistory),
+        );
+
+        ctx.response.status = 200;
+        ctx.response.body = { message: "History synced successfully" };
+      } else {
+        ctx.response.status = 400;
+        ctx.response.body = {
+          error: "Invalid request body. Expected an array of strings.",
+        };
+      }
+    } catch (error) {
+      console.error("Error syncing history:", error);
       ctx.response.status = 500;
       ctx.response.body = { error: "Internal server error" };
     }
@@ -100,17 +127,19 @@ if (import.meta.main) {
   });
 
   router.get("/", async (ctx) => {
-    await send(ctx, "index.html", {
-      root: dirname,
-    });
+    const body = await fetch(new URL("index.html", import.meta.url))
+      .then((r) => r.body);
+    ctx.response.body = body;
   });
 
   app.use(router.routes());
   app.use(async (ctx, next) => {
     try {
-      await send(ctx, ctx.request.url.pathname, {
-        root: dirname,
-      });
+      const body = await fetch(
+        new URL(ctx.request.url.pathname, import.meta.url),
+      )
+        .then((r) => r.body);
+      ctx.response.body = body;
     } catch {
       // File not found, continue to next middleware
       await next();
