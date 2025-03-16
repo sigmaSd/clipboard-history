@@ -19,17 +19,21 @@ A simple clipboard history manager that allows you to save and access your recen
 
 - [Deno](https://deno.com/) runtime (version 1.34.0 or later)
 
-### Installation
+### Usage
 
-1. Clone this repository:
+- Run directly
    ```
-   git clone https://github.com/your-username/clipboard-history.git
-   cd clipboard-history
+   deno -A  https://github.com/sigmaSd/clipboard-history/raw/refs/heads/master/src/webview.ts
    ```
 
-2. Run the application:
+- Install as script
    ```
-   deno run -A paste/src/webview.ts
+   deno install --global --name cliphist -A  https://github.com/sigmaSd/clipboard-history/raw/refs/heads/master/src/webview.ts
+   ```
+
+- Compile as a standalone binary
+   ```
+   deno compile -A --include https://github.com/sigmaSd/clipboard-history/raw/refs/heads/master/src/server.ts  https://github.com/sigmaSd/clipboard-history/raw/refs/heads/master/src/webview.ts
    ```
 
 ### Usage
