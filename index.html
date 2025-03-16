@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clipboard History</title>
+    <link rel="stylesheet" href="/font-awesome/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --error-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        header .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .api-docs {
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .api-title {
+            color: var(--dark-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+
+        .api-title i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
+        .endpoint {
+            background-color: #fff;
+            border-left: 4px solid var(--primary-color);
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        .endpoint-url {
+            font-family: monospace;
+            background-color: #2c3e50;
+            color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .endpoint-desc {
+            color: #555;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        #history {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            padding: 5px;
+            border-radius: var(--border-radius);
+        }
+
+        .history-item {
+            background-color: white;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .history-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .fetched-item {
+            border-left-color: var(--secondary-color);
+        }
+
+        #status {
+            margin: 15px 0;
+            padding: 12px 15px;
+            color: var(--secondary-color);
+            border-radius: var(--border-radius);
+            background-color: rgba(46, 204, 113, 0.1);
+            font-weight: 500;
+        }
+
+        #status.error {
+            color: var(--error-color);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        button i {
+            margin-right: 8px;
+        }
+
+        input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: #95a5a6;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        /* Animation for new items */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .new-item {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-clipboard-list"></i> Clipboard History</h1>
+            <p class="subtitle">Paste anything to save it to your clipboard history</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="api-docs card">
+            <div class="api-title"><i class="fas fa-code"></i> API Endpoints</div>
+            <div class="endpoint">
+                <span class="endpoint-url">GET /get?index=0</span>
+                <span>Get clipboard item by index (newest first)</span>
+                <p class="endpoint-desc">Returns a single history item. Index 0 is the most recent item. Returns 404 if index is invalid.</p>
+            </div>
+            <div class="endpoint">
+                <span class="endpoint-url">GET /getAll</span>
+                <span>Get all clipboard history items</span>
+                <p class="endpoint-desc">Returns the complete history as an array of items.</p>
+            </div>
+            <div class="endpoint">
+                <span class="endpoint-url">POST /add</span>
+                <span>Add new item to clipboard history</span>
+                <p class="endpoint-desc">Requires JSON body with 'text' property. Example: {"text": "Your clipboard content"}</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div id="status">Ready to paste...</div>
+
+            <div id="history">
+                <!-- History items will be added here -->
+                <div class="empty-state">
+                    <i class="far fa-clipboard"></i>
+                    <p>No clipboard history yet. Paste something to get started!</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Clipboard History App — Press Ctrl+V (or Cmd+V) anywhere on this page to paste</p>
+        </footer>
+    </div>
+
+    <script>
+        const historyDiv = document.getElementById('history');
+        const statusDiv = document.getElementById('status');
+
+        // Function to set status message
+        function setStatus(message, isError = false) {
+            statusDiv.textContent = message;
+            statusDiv.className = isError ? 'error' : '';
+        }
+
+        // Function to clear the empty state if it exists
+        function clearEmptyState() {
+            const emptyState = historyDiv.querySelector('.empty-state');
+            if (emptyState) {
+                historyDiv.removeChild(emptyState);
+            }
+        }
+
+        // Function to add an item to the UI
+        function addToUI(text, isFetched = false) {
+            clearEmptyState();
+
+            const itemDiv = document.createElement('div');
+            itemDiv.classList.add('history-item', 'new-item');
+            if (isFetched) {
+                itemDiv.classList.add('fetched-item');
+            }
+            itemDiv.textContent = text;
+            historyDiv.insertBefore(itemDiv, historyDiv.firstChild);
+
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                itemDiv.classList.remove('new-item');
+            }, 300);
+        }
+
+        // Function to send the pasted text to the server
+        async function sendToServer(text) {
+            try {
+                setStatus('Adding to history...');
+
+                const response = await fetch('/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    setStatus(`Error: ${errorData.error || 'Server error'}`, true);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                setStatus(`Added to history: ${text.substring(0, 50)}${text.length > 50 ? '...' : ''}`);
+
+            } catch (error) {
+                console.error('Error sending to server:', error);
+                setStatus(`Error: ${error.message}`, true);
+            }
+        }
+
+        // Listen for the 'paste' event on the document
+        document.addEventListener('paste', (event) => {
+            event.preventDefault();
+            const text = (event.clipboardData || window.clipboardData).getData('text');
+            if (text) {
+                addToUI(text);
+                sendToServer(text);
+            }
+        });
+
+        // Fetch and display history on page load
+        async function loadHistory() {
+            try {
+                setStatus('Loading history...');
+
+                const response = await fetch('/getAll');
+                const data = await response.json();
+
+                if (data.items && Array.isArray(data.items)) {
+                    if (data.items.length === 0) {
+                        // Keep the empty state as is
+                        setStatus('Ready to paste...');
+                        return;
+                    }
+
+                    clearEmptyState();
+
+                    // Add items in reverse order (newest first)
+                    for (const item of data.items) {
+                        addToUI(item);
+                    }
+
+                    setStatus(`Loaded ${data.items.length} history items`);
+                } else {
+                    setStatus('No history items found');
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+                setStatus(`Error loading history: ${error.message}`, true);
+            }
+        }
+
+        // Initialize UI
+        loadHistory();
+    </script>
+</body>
+</html>
