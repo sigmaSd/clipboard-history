@@ -1,9 +1,7 @@
 import { Application, Router, send, Status } from "jsr:@oak/oak@17.1.4";
-import assert from "node:assert";
 
 if (import.meta.main) {
-  const dirname = import.meta.dirname;
-  assert(dirname);
+  const dirname = import.meta.dirname || ".";
   // @ts-ignore checking for worker
   if (self?.postMessage) {
     injectWorkerCode();
