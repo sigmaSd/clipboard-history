@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -229,6 +228,20 @@
         .new-item {
             animation: fadeIn 0.3s ease-out forwards;
         }
+
+        .clear-btn {
+            background-color: var(--error-color);
+        }
+
+        .clear-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -262,6 +275,10 @@
         <div class="card">
             <div id="status">Ready to paste...</div>
 
+            <div class="controls">
+                <button id="clearBtn" class="clear-btn"><i class="fas fa-trash"></i> Clear History</button>
+            </div>
+
             <div id="history">
                 <!-- History items will be added here -->
                 <div class="empty-state">
@@ -279,6 +296,7 @@
     <script>
         const historyDiv = document.getElementById('history');
         const statusDiv = document.getElementById('status');
+        const clearBtn = document.getElementById('clearBtn');
 
         // Function to set status message
         function setStatus(message, isError = false) {
@@ -292,6 +310,17 @@
             if (emptyState) {
                 historyDiv.removeChild(emptyState);
             }
+        }
+
+        // Function to show the empty state
+        function showEmptyState() {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = `
+                <i class="far fa-clipboard"></i>
+                <p>No clipboard history yet. Paste something to get started!</p>
+            `;
+            historyDiv.appendChild(emptyState);
         }
 
         // Function to add an item to the UI
@@ -339,6 +368,35 @@
             }
         }
 
+        // Function to clear history
+        async function clearHistory() {
+            try {
+                setStatus('Clearing history...');
+
+                const response = await fetch('/clear', {
+                    method: 'POST'
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    setStatus(`Error: ${errorData.error || 'Server error'}`, true);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Clear UI
+                historyDiv.innerHTML = '';
+                showEmptyState();
+                setStatus('History cleared successfully');
+
+            } catch (error) {
+                console.error('Error clearing history:', error);
+                setStatus(`Error clearing history: ${error.message}`, true);
+            }
+        }
+
+        // Clear button event listener
+        clearBtn.addEventListener('click', clearHistory);
+
         // Listen for the 'paste' event on the document
         document.addEventListener('paste', (event) => {
             event.preventDefault();
@@ -354,7 +412,7 @@
             try {
                 setStatus('Loading history...');
 
-                const response = await fetch('/getAll');
+                const response = await fetch('/getAll?json');
                 const data = await response.json();
 
                 if (data.items && Array.isArray(data.items)) {

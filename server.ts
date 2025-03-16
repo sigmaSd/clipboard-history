@@ -42,6 +42,22 @@ router.post("/add", async (ctx) => {
   }
 });
 
+router.post("/clear", (ctx) => {
+  try {
+    // Clear the array
+    clipboardHistory = [];
+    // Update localStorage
+    localStorage.setItem("clipboardHistory", JSON.stringify(clipboardHistory));
+
+    ctx.response.status = 200;
+    ctx.response.body = { message: "History cleared successfully" };
+  } catch (error) {
+    console.error("Error clearing history:", error);
+    ctx.response.status = 500;
+    ctx.response.body = { error: "Internal server error" };
+  }
+});
+
 // API endpoint to get a history item by index
 router.get("/get", (ctx) => {
   const indexParam = ctx.request.url.searchParams.get("index");
