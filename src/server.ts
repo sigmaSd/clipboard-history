@@ -134,11 +134,14 @@ if (import.meta.main) {
 
   app.use(router.routes());
   app.use(async (ctx, next) => {
+    const dirname = "/src/";
     try {
       const body = await fetch(
-        new URL(ctx.request.url.pathname, import.meta.url),
-      )
-        .then((r) => r.body);
+        new URL(
+          ctx.request.url.pathname.replace(new RegExp(`^${dirname}`), ""),
+          import.meta.url,
+        ),
+      ).then((r) => r.body);
       ctx.response.body = body;
     } catch {
       // File not found, continue to next middleware
