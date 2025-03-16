@@ -33,7 +33,7 @@ A simple clipboard history manager that allows you to save and access your recen
 
 - Compile as a standalone binary
    ```
-   deno compile -A --include https://github.com/sigmaSd/clipboard-history/raw/refs/heads/master/src/server.ts  https://github.com/sigmaSd/clipboard-history/raw/refs/heads/master/src/webview.ts
+    deno compile --no-check --output cliphist -A --include https://github.com/sigmaSd/clipboard-history/raw/refs/heads/master/src/server.ts  https://github.com/sigmaSd/clipboard-history/raw/refs/heads/master/src/webview.ts
    ```
 
 ### Usage
