@@ -1,6 +1,9 @@
 import { Application, Router, send, Status } from "jsr:@oak/oak@17.1.4";
+import assert from "node:assert";
 
 if (import.meta.main) {
+  const dirname = import.meta.dirname;
+  assert(dirname);
   // @ts-ignore checking for worker
   if (self?.postMessage) {
     injectWorkerCode();
@@ -100,7 +103,7 @@ if (import.meta.main) {
 
   router.get("/", async (ctx) => {
     await send(ctx, "index.html", {
-      root: ".",
+      root: dirname,
     });
   });
 
@@ -108,7 +111,7 @@ if (import.meta.main) {
   app.use(async (ctx, next) => {
     try {
       await send(ctx, ctx.request.url.pathname, {
-        root: ".",
+        root: dirname,
       });
     } catch {
       // File not found, continue to next middleware
