@@ -6,7 +6,7 @@ const worker = new Worker(import.meta.resolve("./server.ts"), {
 });
 const webview = new Webview(true);
 webview.title = "Clipboard History";
-webview.size = { width: 1000, height: 600, hint: SizeHint.NONE };
+webview.size = { width: 1200, height: 800, hint: SizeHint.NONE };
 
 const localStorageKey = "clipboardHistory";
 webview.bind("add", (value) => {

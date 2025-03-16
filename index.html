@@ -33,7 +33,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -64,12 +64,26 @@
             text-align: center;
         }
 
+        /* Main content layout */
+        .main-content {
+            display: flex;
+            gap: 30px;
+        }
+
+        .sidebar {
+            flex: 0 0 300px;
+        }
+
+        .content {
+            flex: 1;
+        }
+
         .api-docs {
             background-color: var(--light-color);
             border-radius: var(--border-radius);
             padding: 15px;
-            margin-bottom: 30px;
             box-shadow: var(--box-shadow);
+            height: fit-content;
         }
 
         .api-title {
@@ -242,6 +256,18 @@
             justify-content: flex-end;
             margin-bottom: 10px;
         }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                flex: 0 0 100%;
+                margin-bottom: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -253,37 +279,45 @@
     </header>
 
     <div class="container">
-        <div class="api-docs card">
-            <div class="api-title"><i class="fas fa-code"></i> API Endpoints</div>
-            <div class="endpoint">
-                <span class="endpoint-url">GET /get?index=0</span>
-                <span>Get clipboard item by index (newest first)</span>
-                <p class="endpoint-desc">Returns a single history item. Index 0 is the most recent item. Returns 404 if index is invalid.</p>
-            </div>
-            <div class="endpoint">
-                <span class="endpoint-url">GET /getAll</span>
-                <span>Get all clipboard history items</span>
-                <p class="endpoint-desc">Returns the complete history as an array of items.</p>
-            </div>
-            <div class="endpoint">
-                <span class="endpoint-url">POST /add</span>
-                <span>Add new item to clipboard history</span>
-                <p class="endpoint-desc">Requires JSON body with 'text' property. Example: {"text": "Your clipboard content"}</p>
-            </div>
-        </div>
-
-        <div class="card">
-            <div id="status">Ready to paste...</div>
-
-            <div class="controls">
-                <button id="clearBtn" class="clear-btn"><i class="fas fa-trash"></i> Clear History</button>
+        <div class="main-content">
+            <!-- API Endpoints sidebar -->
+            <div class="sidebar">
+                <div class="api-docs">
+                    <div class="api-title"><i class="fas fa-code"></i> API Endpoints</div>
+                    <div class="endpoint">
+                        <span class="endpoint-url">GET http://localhost:8485:get?index=0</span>
+                        <span>Get clipboard item by index (newest first)</span>
+                        <p class="endpoint-desc">Returns a single history item. Index 0 is the most recent item. Returns 404 if index is invalid.</p>
+                    </div>
+                    <div class="endpoint">
+                        <span class="endpoint-url">GET http://localhost:8485:/getAll</span>
+                        <span>Get all clipboard history items</span>
+                        <p class="endpoint-desc">Returns the complete history as an array of items.</p>
+                    </div>
+                    <div class="endpoint">
+                        <span class="endpoint-url">POST http://localhost:8485:/add</span>
+                        <span>Add new item to clipboard history</span>
+                        <p class="endpoint-desc">Requires JSON body with 'text' property. Example: {"text": "Your clipboard content"}</p>
+                    </div>
+                </div>
             </div>
 
-            <div id="history">
-                <!-- History items will be added here -->
-                <div class="empty-state">
-                    <i class="far fa-clipboard"></i>
-                    <p>No clipboard history yet. Paste something to get started!</p>
+            <!-- Main clipboard content -->
+            <div class="content">
+                <div class="card">
+                    <div id="status">Ready to paste...</div>
+
+                    <div class="controls">
+                        <button id="clearBtn" class="clear-btn"><i class="fas fa-trash"></i> Clear History</button>
+                    </div>
+
+                    <div id="history">
+                        <!-- History items will be added here -->
+                        <div class="empty-state">
+                            <i class="far fa-clipboard"></i>
+                            <p>No clipboard history yet. Paste something to get started!</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
