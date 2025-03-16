@@ -2,7 +2,7 @@
 
 A simple clipboard history manager that allows you to save and access your recent clipboard items.
 
-![Clipboard History App Screenshot](https://via.placeholder.com/800x450?text=Clipboard+History+App)
+![image](https://github.com/user-attachments/assets/d9cbabcb-2aba-4845-bfc9-8f2a7c664784)
 
 ## Features
 
