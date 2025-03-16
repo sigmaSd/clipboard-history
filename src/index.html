@@ -268,6 +268,50 @@
                 margin-bottom: 20px;
             }
         }
+
+        .endpoint {
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            color: var(--primary-color);
+            padding: 2px 6px;
+            font-size: 0.8rem;
+            border: 1px solid var(--primary-color);
+            opacity: 0.7;
+        }
+
+        .copy-btn:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+            transform: none;
+            opacity: 1;
+        }
+
+        .copy-btn i {
+            margin-right: 0;
+        }
+
+        .copy-tooltip {
+            position: absolute;
+            background-color: var(--dark-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            top: -30px;
+            right: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .copy-tooltip.active {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -284,21 +328,27 @@
             <div class="sidebar">
                 <div class="api-docs">
                     <div class="api-title"><i class="fas fa-code"></i> API Endpoints</div>
-                    <div class="endpoint">
-                        <span class="endpoint-url">GET http://localhost:8485:get?index=0</span>
-                        <span>Get clipboard item by index (newest first)</span>
-                        <p class="endpoint-desc">Returns a single history item. Index 0 is the most recent item. Returns 404 if index is invalid.</p>
-                    </div>
-                    <div class="endpoint">
-                        <span class="endpoint-url">GET http://localhost:8485:/getAll</span>
-                        <span>Get all clipboard history items</span>
-                        <p class="endpoint-desc">Returns the complete history as an array of items.</p>
-                    </div>
-                    <div class="endpoint">
-                        <span class="endpoint-url">POST http://localhost:8485:/add</span>
-                        <span>Add new item to clipboard history</span>
-                        <p class="endpoint-desc">Requires JSON body with 'text' property. Example: {"text": "Your clipboard content"}</p>
-                    </div>
+                </div>
+                <div class="endpoint">
+                    <span class="endpoint-url">GET http://localhost:8485/get?index=0</span>
+                    <button class="copy-btn" data-url="http://localhost:8485/get?index=0"><i class="far fa-copy"></i></button>
+                    <div class="copy-tooltip">Copied!</div>
+                    <span>Get clipboard item by index (newest first)</span>
+                    <p class="endpoint-desc">Returns a single history item. Index 0 is the most recent item. Returns 404 if index is invalid.</p>
+                </div>
+                <div class="endpoint">
+                    <span class="endpoint-url">GET http://localhost:8485/getAll</span>
+                    <button class="copy-btn" data-url="http://localhost:8485/getAll"><i class="far fa-copy"></i></button>
+                    <div class="copy-tooltip">Copied!</div>
+                    <span>Get all clipboard history items</span>
+                    <p class="endpoint-desc">Returns the complete history as an array of items.</p>
+                </div>
+                <div class="endpoint">
+                    <span class="endpoint-url">POST http://localhost:8485/add</span>
+                    <button class="copy-btn" data-url="http://localhost:8485/add"><i class="far fa-copy"></i></button>
+                    <div class="copy-tooltip">Copied!</div>
+                    <span>Add new item to clipboard history</span>
+                    <p class="endpoint-desc">Requires JSON body with 'text' property. Example: {"text": "Your clipboard content"}</p>
                 </div>
             </div>
 
@@ -499,6 +549,22 @@
                 setStatus(`Error loading history: ${error.message}`, true);
             }
         }
+
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const url = button.dataset.url;
+                try {
+                    await navigator.clipboard.writeText(url);
+                    const tooltip = button.nextElementSibling;
+                    tooltip.classList.add('active');
+                    setTimeout(() => {
+                        tooltip.classList.remove('active');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy URL: ', err);
+                }
+            });
+        });
 
         // Initialize UI
         loadHistory();
